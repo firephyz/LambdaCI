@@ -11,48 +11,39 @@ public class Reducer {
 		this.isDone = false;
 	}
 	
-	public boolean isNormal() {return this.isDone;}
-	
 	public void reduce(Tree tree) {
 		
-		// Assume no application is needed; we are done
-		this.isDone = true;
-		
-		// Process anyway and see if that assumption should change
-		this.reduceHelper(tree);
+		while(!isDone) {
+			// Assume no application is needed; we are done
+			this.isDone = true;
+			
+			// Process anyway and see if that assumption should change
+			reduceHelper(tree);
+			
+			// Print reduced version
+			if (!isDone) System.out.println(tree.print());
+		}
 	}
 	
-	private boolean reduceHelper(Tree tree) {
+	private void reduceHelper(Tree tree) {
 		
-		boolean beta = false;
-		
-		if (tree.getNode().getType() == NodeType.Application) {
+		if (tree.getNode().getType() == NodeType.Application &&
+			tree.getChild(0).getChild(0).getNode().getType() == NodeType.Function) {
+			
 			Tree left = tree.getChild(0).getChild(0);
 			Tree right = tree.getChild(1).getChild(0);
-			if (left.getNode().getType() == NodeType.Function) {
-				this.isDone = false;
-				this.processApplication(tree, left, right);
-				return true;
-			}
-			else {
-				for(Tree sub : tree.getChildren()) {
-					beta = this.reduceHelper(sub);
-					if (beta) break;
-				}
-			}
+			this.isDone = false;
+			this.processApplication(tree, left, right);
 		}
 		else {
 			for(Tree sub : tree.getChildren()) {
-				beta = this.reduceHelper(sub);
-				if (beta) break;
+				this.reduceHelper(sub);
+				if (!isDone) break;
 			}
 		}
-		
-		if (beta) return true;
-		else return false;
 	}
 	
-	// tree is the branch of the root_tree that corresponds to this application
+	// tree is the app branch of the root_tree that corresponds to this application
 	// function is the left side of the application that holds the function
 	// subst is the right side of the application that holds what is to be substituted
 	private void processApplication(Tree tree, Tree function, Tree subst) {
@@ -65,7 +56,8 @@ public class Reducer {
 		performApplication(var, body, subst);
 		
 		// Reorganize tree
-		tree.getParent().replaceChild(0, function.getChild(1).getChild(0)); // Child 0 of the parent tree is the application tree
+		// Child 0 of the parent tree is the application tree
+		tree.getParent().replaceChild(0, function.getChild(1).getChild(0));
 	}
 	
 	private void performApplication(String var, Tree body, Tree subst) {
@@ -73,6 +65,8 @@ public class Reducer {
 		// For each variable matching the given var, replace it with the subst tree
 		if (body.getNode().getType() == NodeType.Variable &&
 			((TerminalNode)body.getNode()).getVar().equals(var)) {
+			
+			resolveVariableNames(body, subst);
 			// Replacing child 0 because the only case in which a NodeType.Variable
 			// can occur is when it is the only and terminal child.
 			// Must replace with a copy so that future applications on one copy
@@ -80,9 +74,15 @@ public class Reducer {
 			body.getParent().replaceChild(0, subst.copy());
 		}
 		else {
+			// If an immediate match wasn't found, keep traversing the function body
+			// tree until one is or isn't found
 			for(Tree sub : body.getChildren()) {
 				this.performApplication(var, sub, subst);
 			}
 		}
+	}
+	
+	private void resolveVariableNames(Tree body, Tree subst) {
+		
 	}
 }
