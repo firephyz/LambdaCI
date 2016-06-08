@@ -1,24 +1,22 @@
+package TreeGen;
+import Lambda.Utils;
 
 public class TreeGenerator {
 	
 	private Tree rootTree;
 	
 	public TreeGenerator() {
-		rootTree = new Tree(NodeType.Term);
+		rootTree = new Tree(new Node(NodeType.Term));
 	}
 	
 	public Tree parse(String string) {
 		
-		resolveVariableNames(string);
+		parseTerm(rootTree, string);
 		
-		return parseTerm(rootTree, string);
+		return rootTree;
 	}
 	
-	public void resolveVariableNames(String string) {
-		
-	}
-	
-	public Tree parseTerm(Tree tree, String string) {
+	public void parseTerm(Tree tree, String string) {
 		
 		if (string.charAt(0) == '(') {
 			int match = Utils.findMatchingParens(string);
@@ -36,8 +34,6 @@ public class TreeGenerator {
 		else {
 			tree.addChild(new TerminalNode(string, NodeType.Variable));
 		}
-		
-		return this.rootTree;
 	}
 	
 	public void parseFunction(Tree tree, String string) {
@@ -80,11 +76,13 @@ public class TreeGenerator {
 				index = spaceIndex + 1;
 			}
 
+			// Seperate the application terms according to these calculated indicies
 			term = string.substring(0, index);
 			string = string.substring(index).trim();
 		}
 		
-		// Handles multiplie nested parenthesis
+		// Handles multiple nested parenthesis (a nested parenthesis will
+		// have an empty second term)
 		if (string.length() == 0) {
 			tree.getParent().getChildren().remove(0); // Remove the incorrent application node
 			parseTerm(tree.getParent(), term);
@@ -94,13 +92,15 @@ public class TreeGenerator {
 		tree.addChild(new Node(NodeType.AppLeft));
 		tree.addChild(new Node(NodeType.AppRight));
 		
+		// Parse first term
+		parseTerm(tree.getChild(0), term);
+		
+		// Parse the second term or conclude it with a variable
 		if (string.charAt(0) == '(') {
 			parseTerm(tree.getChild(1), string);
 		}
 		else {
 			tree.getChild(1).addChild(new TerminalNode(string, NodeType.Variable));
 		}
-		
-		parseTerm(tree.getChild(0), term);
 	}
 }

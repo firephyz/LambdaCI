@@ -1,3 +1,6 @@
+package Lambda;
+import TreeGen.Tree;
+import TreeGen.TreeGenerator;
 
 public class Lambda {
 	

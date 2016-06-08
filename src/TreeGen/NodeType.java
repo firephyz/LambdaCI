@@ -1,3 +1,4 @@
+package TreeGen;
 
 public enum NodeType {
 	

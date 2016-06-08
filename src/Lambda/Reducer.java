@@ -1,3 +1,7 @@
+package Lambda;
+import TreeGen.NodeType;
+import TreeGen.TerminalNode;
+import TreeGen.Tree;
 
 public class Reducer {
 	

@@ -1,6 +1,10 @@
+package Lambda;
+import TreeGen.Tree;
 
 public class Utils {
 	
+	// Finds the index of the matching parenthesis given a string starting
+	// with the opening parenthesis
 	public static int findMatchingParens(String string) {
 		
 		int depthCount = 0;

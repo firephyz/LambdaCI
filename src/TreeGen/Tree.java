@@ -1,3 +1,4 @@
+package TreeGen;
 import java.util.ArrayList;
 
 public class Tree {
@@ -6,19 +7,18 @@ public class Tree {
 	private ArrayList<Tree> children;
 	private Node node;
 	
-	public Tree() {
-		this(NodeType.None);
-	}
-	public Tree(NodeType type) {
-		this.parent = null;
-		children = new ArrayList<>();
-		node = new Node(type);
-	}
 	public Tree(Node node) {
 		this.parent = null;
 		children = new ArrayList<>();
 		this.node = node;
 	}
+	
+	public Tree getChild(int i) 			{return children.get(i);}
+	public ArrayList<Tree> getChildren() 	{return this.children;}
+	public int getChildCount() 				{return this.children.size();}
+	public Node getNode() 					{return this.node;}
+	public Tree getParent() 				{return this.parent;}
+	public void setParent(Tree tree) 		{this.parent = tree;}
 	
 	public void addChild(Node node) {
 		Tree newTree = new Tree(node);
@@ -50,19 +50,32 @@ public class Tree {
 		return newTree;
 	}
 	
-	public Tree getChild(int i) {return children.get(i);}
-	public ArrayList<Tree> getChildren() {return this.children;}
-	public int getChildCount() {return this.children.size();}
-	public Node getNode() {return this.node;}
-	public Tree getParent() {return this.parent;}
-	public void setParent(Tree tree) {this.parent = tree;}
-	
 	public String print() {
 		
 		String string = printBranch("", this);
 		
 		return string;
 	}
+	
+	public String printFormatted() {
+
+		String result = "[";
+		
+		result += this.node.getType().print() + " ";
+		if (this.node instanceof TerminalNode) {
+			result += ((TerminalNode)this.node).getVar() + " ";
+		}
+		
+		for(int i = 0; i < getChildCount(); ++i) {
+			result += this.getChild(i).printFormatted();
+		}
+		
+		result += "]";
+		
+		return result;
+	}
+	
+	////////////////////// Private Helper Functions ///////////////////////////
 	
 	private String printBranch(String string, Tree tree) {
 		
@@ -98,23 +111,5 @@ public class Tree {
 		}
 		
 		return string;
-	}
-	
-	public String printFormatted() {
-
-		String result = "[";
-		
-		result += this.node.getType().print() + " ";
-		if (this.node instanceof TerminalNode) {
-			result += ((TerminalNode)this.node).getVar() + " ";
-		}
-		
-		for(int i = 0; i < getChildCount(); ++i) {
-			result += this.getChild(i).printFormatted();
-		}
-		
-		result += "]";
-		
-		return result;
 	}
 }
